@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "Please cite the accompanying manuscript when using this software."
+title: "Image-Adaptive Depth Aggregation for Whole-Image Breast Ultrasound Classification"
+type: software
+authors:
+  - family-names: Wu
+    given-names: Jia
+  - family-names: Shan
+    given-names: Dongjing
+version: 1.0.0
+date-released: 2026-09-13
+license: MIT
+repository-code: "https://github.com/wujia-xyz/IADA-Net"
