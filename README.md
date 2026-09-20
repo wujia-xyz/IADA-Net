@@ -79,6 +79,8 @@ Run all four head kinds (`gap`, `gated`, `cls_mean`, `depth`) on all five folds.
 
 The [aggregation analysis](docs/THEORY.md) states the encoded-feature scope of the row-compression separation and contextual derivative. It is separate from empirical performance claims. New experimental results are not supplied by the patient-series scoring utility.
 
+The optional [source-reader grade head](docs/READER_GRADES.md) adds training-only ordinal supervision and can be removed without changing diagnosis outputs. It is supplied as a separate component for the ongoing source-supervision study; it does not alter the historical runner or provide that study's uncompleted results.
+
 The earlier [DABI-Net repository](https://github.com/wujia-xyz/DABI-Net) provides the predecessor model and comparison implementations. This repository contains the current IADA-Net model and controlled heads, with portable dataset and checkpoint paths.
 
 ## Citation and license
