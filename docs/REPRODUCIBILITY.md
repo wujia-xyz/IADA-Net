@@ -18,7 +18,15 @@ The four heads preserve the original capacity calculation, including the gated a
 
 ## Statistics
 
+### Archived evaluation convention
+
 The decision rule is malignancy probability greater than 0.5. Internal aggregate CSVs use population SD across five folds. External ensembles average probabilities across source folds and then across images per patient. Bootstrap uses multinomial patient counts, a 95% percentile interval, and common draws for paired differences. The full-model and matched-head seed namespaces are separate, matching the retained study. The `bootstrap` function accepts reference predictions for paired comparisons.
+
+### Patient-series convention
+
+The separate `iada.score_patient_series` command uses mean fold probabilities per image followed by the patient maximum, with exact 0.5 ties positive. It accepts explicit patient labels and complete saved probability files. Malignant-only series use sensitivity, TP/FN and an exact 95% interval; mixed-class cohorts use patient bootstrap seed 42 with 2,000 valid draws by default. [Details and examples](PATIENT_SERIES.md) distinguish this protocol from the archived convention. The scorer does not replace archived result CSVs or supply trained checkpoints.
+
+Training configurations use one master seed 42. Fivefold partitions and deterministic augmentation substreams are not additional seed repetitions.
 
 ## Source relationship
 
