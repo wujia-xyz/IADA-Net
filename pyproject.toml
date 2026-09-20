@@ -17,6 +17,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
+source = ["openpyxl>=3.1,<4"]
 
 [tool.setuptools.packages.find]
 include = ["iada*"]

@@ -1,0 +1,34 @@
+{
+  "name": "Pooled-source nested fivefold study",
+  "master_seed": 42,
+  "original_images": 1052,
+  "auxiliary_images": 2301,
+  "outer_folds": 5,
+  "known_image_families": 934,
+  "original_datasets": {
+    "busi": 645,
+    "udiat": 159,
+    "arc": 248
+  },
+  "source_images_or_weights_included": false,
+  "reader_grade_values_included": false,
+  "clinical_or_external_records_included": false,
+  "reader_workbook_sha256": "a399484238e9e75011c27cbf814909b97f75b1982693ae32ac06f54965ed18b4",
+  "reader_workbook_source": "https://github.com/yuhaomo/HoVerTrans",
+  "selection": "Equal-source inner F1 at probability >=0.5; inner AUC then earliest within 1e-12",
+  "image_schedule": "One observation of each original train image plus one same-class auxiliary observation per round",
+  "schedule_phase_seeds": {
+    "base": 42,
+    "query": 100042
+  },
+  "schedule_rounds": {
+    "base": 250,
+    "query": 40
+  },
+  "iada_base_rounds": 100,
+  "files": {
+    "original.csv": "9c58fbfa553407363983adb29186acb506926323e7e0c68d75429438fe6849cc",
+    "auxiliary.csv": "060362d7cc5f7f95f17002662bc736991652980b1b3f849412f486a6e3c81296",
+    "partitions.csv": "43365c6f594ca3480362147b477de66c15c125cd6f0f9300bd094df5f7385a4b"
+  }
+}

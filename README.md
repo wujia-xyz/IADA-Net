@@ -81,6 +81,8 @@ The [aggregation analysis](docs/THEORY.md) states the encoded-feature scope of t
 
 The optional [source-reader grade head](docs/READER_GRADES.md) adds training-only ordinal supervision and can be removed without changing diagnosis outputs. It is supplied as a separate component for the ongoing source-supervision study; it does not alter the historical runner or provide that study's uncompleted results.
 
+The later study's [fixed source protocol](docs/SOURCE_PROTOCOL.md) supplies public-source metadata and a command that recreates the exact nested roles, paired image schedules, and optional reader correspondence control. The metadata and preparation command are separate from the older `data/splits/` training workflow. Images and reader workbook values remain with their original providers.
+
 The earlier [DABI-Net repository](https://github.com/wujia-xyz/DABI-Net) provides the predecessor model and comparison implementations. This repository contains the current IADA-Net model and controlled heads, with portable dataset and checkpoint paths.
 
 ## Citation and license
