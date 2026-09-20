@@ -46,6 +46,6 @@ The correspondence control uses one joint-reader permutation within site, diagno
 
 ## Training and evaluation scope
 
-This command prepares the later study's source inputs. The historical `iada.train` command still implements the older training wrapper and does not automatically consume these nested partitions or paired schedules. The [reader head](READER_GRADES.md) and [patient-series scorer](PATIENT_SERIES.md) are separate components. Do not combine archived results with a newly prepared training run or describe preparation alone as a complete experimental reproduction.
+This command prepares the later study's source inputs. Use the separate [iada.train_source entry point](TRAIN_SOURCE.md) to consume these nested partitions and paired schedules. The historical `iada.train` command remains the older training wrapper. The [reader head](READER_GRADES.md) and [patient-series scorer](PATIENT_SERIES.md) follow the same explicit separation. Do not combine archived results with a newly prepared run or describe preparation alone as a complete experimental reproduction.
 
 In the later study, selected checkpoints are chosen only on the inner selection partition by equal-dataset F1 at 0.5, then equal-dataset AUC, then the earliest candidate within tolerance 1e-12. Outer test folds are reserved for internal evaluation. External and clinical images do not enter source scheduling, reader-grade preparation, or checkpoint selection.

@@ -83,6 +83,8 @@ The optional [source-reader grade head](docs/READER_GRADES.md) adds training-onl
 
 The later study's [fixed source protocol](docs/SOURCE_PROTOCOL.md) supplies public-source metadata and a command that recreates the exact nested roles, paired image schedules, and optional reader correspondence control. The metadata and preparation command are separate from the older `data/splits/` training workflow. Images and reader workbook values remain with their original providers.
 
+For the later training workflow, use [iada.train_source](docs/TRAIN_SOURCE.md). It trains one fixed-seed fold/stage, supports the reader controls and explicit resume, and keeps the historical runner intact. `iada.predict_manifest` writes full per-image probabilities for the patient-series scorer; it also accepts graded base checkpoints by removing their training-only reader head.
+
 The earlier [DABI-Net repository](https://github.com/wujia-xyz/DABI-Net) provides the predecessor model and comparison implementations. This repository contains the current IADA-Net model and controlled heads, with portable dataset and checkpoint paths.
 
 ## Citation and license

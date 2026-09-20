@@ -31,7 +31,7 @@ The source study uses one master seed 42 with five outer folds and separate inne
 
 The base stage uses 100 passes and an auxiliary coefficient of 0.1. Its existing classification objective and core optimizer remain unchanged. The new head follows 100 times the core learning rate, with weight decay 0.01 for its severity weights and zero for its cutpoints. The common gradient-norm bound is 1. After selection by inner-source classification F1, AUC for ties, and earliest candidate thereafter, the reader head is removed. The query stage uses the ordinary 40-pass hard-label objective, ranking coefficient 0.1, and a selectable epoch-zero checkpoint. Neither the reader grade nor a grading branch is used during diagnosis.
 
-This module does not change `iada.train`, the historical data partitions, or the archived release results. Running that historical command is not a replay of the later pooled-source and paired-grade experiment. The complete study also depends on its source admissions, repaired nested partitions, common image/augmentation schedules, and recorded training audits. The component tests verify behavior, not a complete training reproduction or cross-hardware equality.
+This module does not change `iada.train`, the historical data partitions, or the archived release results. Running that historical command is not a replay of the later pooled-source and paired-grade experiment. The separate [iada.train_source entry point](TRAIN_SOURCE.md) uses the fixed source admissions, nested partitions and common image/augmentation schedules. The component tests verify behavior, not a complete retraining or cross-hardware equality.
 
 ## Remove the auxiliary head
 
