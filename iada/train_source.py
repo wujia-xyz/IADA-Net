@@ -22,10 +22,17 @@ from .model import IADANet
 from .reader_grades import attach_reader_head, reader_grade_loss, diagnosis_state
 from .source_position import install
 from .source_protocol import SEED, SOURCES, file_hash, rows, write_rows
+from .source_augmentation import without_vertical_application
 
 
-ARMS = ("binary", "true_grade", "shuffled_grade")
+ARMS = ("binary", "true_grade", "shuffled_grade", "no_vertical")
 METRICS = ("auc", "f1", "accuracy", "precision", "sensitivity", "specificity")
+
+
+def uses_reader_grades(arm):
+    if arm not in ARMS:
+        raise ValueError(f"Unknown source arm: {arm}")
+    return arm in ("true_grade", "shuffled_grade")
 
 
 def utc():
@@ -126,12 +133,13 @@ def set_lr(optimizer, phase, epoch, graded):
 
 
 def build_model(phase, arm, device, backbone_weights=None, base_checkpoint=None, fold=None):
+    graded = uses_reader_grades(arm)
     random.seed(SEED); np.random.seed(SEED); torch.manual_seed(SEED)
     if phase == "base":
         model = IADANet("fixed", backbone_weights=str(backbone_weights))
         install(model.dinov2)
         model = model.to(device)
-        if arm != "binary":
+        if graded:
             attach_reader_head(model)
     else:
         model = IADANet("query")
@@ -140,8 +148,10 @@ def build_model(phase, arm, device, backbone_weights=None, base_checkpoint=None,
             raise ValueError("Query adaptation requires a base checkpoint from the same fold")
         state = checkpoint["model_state_dict"]
         has_head = any(key.startswith("reader_ordinal.") for key in state)
-        if has_head != (arm != "binary") or checkpoint.get("arm", arm) != arm:
+        if has_head != graded or checkpoint.get("arm", arm) != arm:
             raise ValueError("Base checkpoint and requested supervision arm differ")
+        if arm == "no_vertical" and checkpoint.get("arm") != arm:
+            raise ValueError("The no-vertical query requires an explicitly bound no-vertical base checkpoint")
         model.load_base_state(diagnosis_state(state) if has_head else state)
         model.enable_adaptation()
         install(model.dinov2)
@@ -151,6 +161,7 @@ def build_model(phase, arm, device, backbone_weights=None, base_checkpoint=None,
 
 class SourceData:
     def __init__(self, prepared, roots, fold, arm):
+        graded = uses_reader_grades(arm)
         self.arm, self.fold = arm, fold
         self.train = rows(prepared / f"fold{fold}/train.csv")
         self.selection = rows(prepared / f"fold{fold}/selection.csv")
@@ -172,10 +183,12 @@ class SourceData:
         self.schedules = {phase:dict(np.load(prepared/f"fold{fold}/{phase}_schedule.npz", allow_pickle=False)) for phase in ("base","query")}
         random.seed(SEED); np.random.seed(SEED); torch.manual_seed(SEED)
         self.aug = {"base":transform("base",SEED), "query":transform("adapt",SEED)}
+        if arm == "no_vertical":
+            self.aug["base"] = without_vertical_application(self.aug["base"])
         self.cache = [cv2.resize(read_rgb(path),(224,224),interpolation=cv2.INTER_LINEAR) for path in self.paths]
         self.valid = torch.stack([image_tensor(path) for path in valid_paths])
         self.grades, self.available = None, None
-        if arm != "binary":
+        if graded:
             records = rows(prepared / "grade_targets.csv")
             if [r["image_id"] for r in records] != [r["image_id"] for r in self.aux]:
                 raise ValueError("Reader grades must match auxiliary image order")
@@ -216,7 +229,7 @@ def signature(model):
 
 def train_stage(args, data, binding, resume):
     out, device = args.output, torch.device(args.device)
-    phase, graded = args.stage, args.arm != "binary"
+    phase, graded = args.stage, uses_reader_grades(args.arm)
     model = build_model(phase,args.arm,device,args.backbone_weights,args.base_checkpoint,args.fold)
     initial = signature(model)
     parameters, optimizer = make_optimizer(model,phase,graded,device)
@@ -333,7 +346,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.stage=="base" and (not args.backbone_weights or args.base_checkpoint): parser.error("Base stage needs --backbone-weights only")
     if args.stage=="query" and (not args.base_checkpoint or args.backbone_weights): parser.error("Query stage needs --base-checkpoint only")
-    if args.arm!="binary" and args.query_label_smoothing!=0.: parser.error("The graded protocol fixes hard-label query supervision")
+    if args.arm!="binary" and args.query_label_smoothing!=0.: parser.error("Reader-grade and no-vertical arms fix hard-label query supervision")
     torch.set_num_threads(4); cv2.setNumThreads(0); torch.set_float32_matmul_precision("highest"); torch.use_deterministic_algorithms(True)
     torch.backends.cuda.matmul.allow_tf32=False; torch.backends.cudnn.allow_tf32=False; torch.backends.cudnn.benchmark=False
     preparation = json.loads((args.prepared/"PREPARATION.json").read_text())
@@ -342,7 +355,7 @@ def main(argv=None):
         path=(args.prepared/relative).resolve()
         if not path.is_relative_to(args.prepared.resolve()) or file_hash(path)!=expected: parser.error(f"Prepared input changed: {relative}")
     roots = json.loads(args.roots.read_text(encoding="utf-8-sig"))
-    source_files = [Path(__file__), *[Path(__file__).with_name(name) for name in ("source_position.py","source_protocol.py","reader_grades.py","model.py","data.py","backbone.py","layers.py")]]
+    source_files = [Path(__file__), *[Path(__file__).with_name(name) for name in ("source_position.py","source_protocol.py","source_augmentation.py","reader_grades.py","model.py","data.py","backbone.py","layers.py")]]
     config = dict(seed=42,fold=args.fold,stage=args.stage,arm=args.arm,query_label_smoothing=args.query_label_smoothing,device=args.device,
                   preparation_sha256=file_hash(args.prepared/"PREPARATION.json"),roots_sha256=file_hash(args.roots),
                   initialization_sha256=file_hash(args.backbone_weights or args.base_checkpoint),

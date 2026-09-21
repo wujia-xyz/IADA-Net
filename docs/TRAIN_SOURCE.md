@@ -1,6 +1,6 @@
 # Train the fixed-source IADA models
 
-`iada.train_source` is the separate training entry point for the pooled-source study. It consumes the exact inputs prepared by [source_protocol](SOURCE_PROTOCOL.md), rather than the older `data/splits/` workflow. It supports the binary-only base, its soft-label and hard-label query variants, and the true/shuffled source-reader controls. It does not start an additional seed repetition.
+`iada.train_source` is the separate training entry point for the pooled-source study. It consumes the exact inputs prepared by [source_protocol](SOURCE_PROTOCOL.md), rather than the older `data/splits/` workflow. It supports the binary-only base, its soft-label and hard-label query variants, the no-vertical-flip control, and the true/shuffled source-reader controls. It does not start an additional seed repetition.
 
 ## Prepare paths and inputs
 
@@ -33,6 +33,18 @@ To reproduce the soft-label query control, use the **same base checkpoint** with
 
 For reader supervision, prepare inputs with the official workbook, then set `--arm true_grade` or `--arm shuffled_grade` in both stages and use separate output directories. Each query must use its own arm's selected base. Graded arms fix query label smoothing to zero. The base's 266-parameter ordinal head follows the settings in [READER_GRADES.md](READER_GRADES.md); it is removed before ordinary query adaptation and needs no grade at inference.
 
+### No-vertical-flip control
+
+Use `--arm no_vertical` in both stages, with new output directories:
+
+```bash
+python -m iada.train_source --prepared outputs/source_protocol --roots roots.json --fold 1 --stage base --arm no_vertical --backbone-weights weights/dinov2_vitb14_pretrain.pth --output outputs/source_no_vertical/fold1/base --device cuda
+
+python -m iada.train_source --prepared outputs/source_protocol --roots roots.json --fold 1 --stage query --arm no_vertical --base-checkpoint outputs/source_no_vertical/fold1/base/best.pt --output outputs/source_no_vertical/fold1/query --device cuda
+```
+
+This binary-only control suppresses the application of Base vertical reflection while retaining its original probability draw. Other augmentation parameters and random streams are preserved. Query augmentation, inference preprocessing, losses, schedules and checkpoint selection are unchanged; Query smoothing remains zero. No reader workbook or reader head is used. Repeat for folds2--5 with their matching bases. A query refuses a base from another arm or a legacy base without an explicit `no_vertical` arm tag. The arm and augmentation code are included in the run binding, so resume cannot switch the intervention.
+
 All training uses the fixed paired image/augmentation/dropout streams. Base training uses weighted cross-entropy with smoothing 0.1; query training uses the mean of per-image weighted cross-entropies plus ranking weight 0.1. These two reductions are intentionally distinct. The core uses AdamW, weight decay 0.01, and the registered warmup/cosine schedule. The shared gradient-norm bound is 1. CUDA query training uses BF16 autocast; evaluation is FP32. The deterministic positional operator preserves the native bicubic forward and uses its spatial transpose for the first derivative. CPU execution is supported but does not claim the same trajectory as the CUDA benchmark.
 
 Checkpoint selection uses equal-dataset inner F1 at 0.5, then AUC for ties, then the earliest candidate within tolerance 1e-12. A single selected checkpoint supplies every metric for a fold. The command records model/code/input bindings, image exposures, per-round transformation hashes, source selection predictions, selected/final checkpoints, and resumable optimizer states.
@@ -61,4 +73,6 @@ The archived `iada.predict` and `iada.evaluate` commands retain their historical
 
 The portable training primitives were checked against the registered implementation with real source images at batch size 16. Seven binary/graded base/query configurations matched initial tensors, outputs, losses, all computed gradients, clipping, every scheduled learning rate and optimizer parameter group. Twelve first/last-round data batches matched pixels, labels, indices and seeds; all ten full source schedules and all fifteen partitions were separately verified. A synthetic interruption test reproduced the uninterrupted final and selected tensors and all per-epoch predictions.
 
-These are implementation checks, not new classification results or a fresh fivefold retraining. Hardware and library changes can still change a full optimization trajectory. The ongoing study's empirical results must be read from its completed evaluation and independent audit, not inferred from these tests.
+The no-vertical arm additionally matched the recorded complete first/last Base and Query epoch traces across all five folds: pixels, labels, indices and augmentation seeds. Real batch16 Base and Query checks matched initial states, logits, losses, all300/2 active gradient tensors and gradient clipping exactly, with zero optimizer updates. Tests check the preserved augmentation draws, replay every other sampled operation, and reject mismatched or unbound Base metadata.
+
+These are implementation checks, not new classification results or a fresh fivefold retraining. Hardware and library changes can still change a full optimization trajectory. Empirical results must be read from the corresponding completed evaluation and independent audit, not inferred from these tests.
