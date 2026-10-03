@@ -2,8 +2,7 @@
 import torch
 from torch import nn
 
-from iada import checkpoints
-from iada.urfm import URFMIADA
+from iada import URFMIADA, checkpoints
 
 
 class PatchEncoder(nn.Module):

@@ -1,12 +1,26 @@
 cff-version: 1.2.0
 message: "Please cite the accompanying manuscript when using this software."
-title: "IADA-Net: URFM-L with Image-Adaptive Depth Aggregation"
+title: "IADA-Net: Image-Adaptive Depth Aggregation with Context-Conditioned Row Pooling"
 type: software
 authors:
   - family-names: Wu
     given-names: Jia
-  - family-names: Shan
-    given-names: Dongjing
+  - family-names: Huang
+    given-names: Jing
+  - family-names: Zhong
+    given-names: Lisha
+  - family-names: Mao
+    given-names: Jiashun
+  - family-names: Li
+    given-names: Zhangyong
+  - family-names: Meng
+    given-names: Hongying
+  - family-names: Wang
+    given-names: Shijie
+  - family-names: Qu
+    given-names: Biao
+  - family-names: Li
+    given-names: Pinxiong
 version: 1.1.0
 date-released: 2026-10-03
 license: MIT

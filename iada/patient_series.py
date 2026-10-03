@@ -126,8 +126,9 @@ def score_series(records, fold_probabilities, *, cohort_kind, expected_folds=5,
     """Return metrics and patient rows without changing any threshold or membership.
 
     ``malignant-only`` uses exact sensitivity intervals and does not calculate
-    AUC, specificity, precision, F1 or overall accuracy. ``binary`` requires both
-    patient classes and optionally returns shared-draw paired bootstrap intervals.
+    AUC, specificity, precision, F1 or overall accuracy; a supplied reference
+    adds an exact McNemar comparison. ``binary`` requires both patient classes
+    and optionally returns class-stratified, shared-draw bootstrap intervals.
     A bootstrap count of zero explicitly disables binary intervals.
     """
     if cohort_kind not in ('binary', 'malignant-only'):
@@ -154,16 +155,32 @@ def score_series(records, fold_probabilities, *, cohort_kind, expected_folds=5,
               'threshold_ties': 'positive', 'metrics': metric(probability)}
     if reference is not None:
         report['reference_metrics'] = metric(reference)
+        if cohort_kind == 'malignant-only':
+            missed = probability < .5
+            reference_missed = reference < .5
+            primary_only = int(np.sum(missed & ~reference_missed))
+            reference_only = int(np.sum(~missed & reference_missed))
+            discordant = primary_only + reference_only
+            report['paired_comparison'] = {
+                'primary_only_missed': primary_only,
+                'reference_only_missed': reference_only,
+                'both_missed': int(np.sum(missed & reference_missed)),
+                'neither_missed': int(np.sum(~missed & ~reference_missed)),
+                'exact_mcnemar_p': (float(binomtest(primary_only, discordant, p=.5).pvalue)
+                                    if discordant else 1.),
+            }
     if cohort_kind == 'binary':
         uncertainty = {'seed': int(seed), 'requested_resamples': bootstrap_repetitions,
+                       'sampling': 'class_stratified_patient_bootstrap',
+                       'interval_method': 'percentile', 'confidence_level': .95,
                        'valid_resamples': 0, 'intervals': None}
         if bootstrap_repetitions:
             rng = np.random.default_rng(seed)
             values, differences = [], []
-            while len(values) < bootstrap_repetitions:
-                index = rng.integers(0, len(labels), len(labels))
-                if np.unique(labels[index]).size < 2:
-                    continue
+            class_indices = [np.flatnonzero(labels == label) for label in (0, 1)]
+            for _ in range(bootstrap_repetitions):
+                index = np.concatenate([rng.choice(group, size=len(group), replace=True)
+                                        for group in class_indices])
                 actual = _binary_metrics(labels[index], probability[index])
                 values.append([actual['auc'], actual['f1']])
                 if reference is not None:

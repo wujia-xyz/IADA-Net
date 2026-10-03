@@ -1,17 +1,21 @@
-# Final URFM-L/16 results
+# Results for the URFM-L/16 manuscript
 
-These files export previously saved results. The repository update did not retrain models, run cohort inference, or recalculate statistics.
+The final model is R9 `u16_iada`: URFM-L/16 + IADA-Net, without vertical reflection and with the conditioned query.
 
 | File | Contents |
 | --- | --- |
-| `variants.csv` | Same-backbone and encoder comparisons, per-source five-fold means/sample SDs, external patient AUCs, and clinical FN. `urfm_iada` is the final R9 model; A/C are unsuccessful extensions. |
-| `flip_cq.csv` | All four combinations of vertical flip and context-conditioned query (CQ). The final setting has no vertical flip and has CQ. |
-| `external_clinical.csv` | Aggregate confusion counts/metrics for the nine reproduced methods and final IADA. Clinical rows retain TP/FN and sensitivity; mixed-class metrics are blank. |
-| `statistics.json` | Original paired bootstrap AUC differences/95% intervals, exact McNemar tests, specificity-matching analyses, and matched-model summaries. Individual records and local filesystem paths are omitted. |
-| `efficiency_5090.csv` | All 18 models on RTX 5090, retaining PyTorch FLOP-counter values and the original operator-omission notes. |
+| [PAPER_RESULTS.md](PAPER_RESULTS.md) | The six manuscript tables at their displayed precision and with the same method groups. |
+| [development.csv](development.csv) | Unrounded saved AUC/F1 means and sample SDs for BUSI, UDIAT and ARC for the nine comparators and final IADA-Net. Includes the completed TDF-Net BUSI/UDIAT B-mode inference. |
+| [variants.csv](variants.csv) | Saved same-backbone and encoder controls, per-source five-fold means/SDs, external metrics and clinical FN. Final: `urfm_iada`. CLS, A and C are additional controls outside the manuscript's main tables. |
+| [flip_cq.csv](flip_cq.csv) | The four vertical-reflection × conditioned-query settings of manuscript Table 6, including per-source values. |
+| [external_clinical.csv](external_clinical.csv) | Aggregate counts and metrics for the nine reproduced methods and final IADA. Historical internal method identifiers are retained; the manuscript table gives their display names. |
+| [statistics.json](statistics.json) | Saved class-stratified paired AUC bootstrap intervals, exact clinical McNemar tests and specificity-matching analyses. |
+| [efficiency_5090.csv](efficiency_5090.csv) | The 18-model RTX 5090 measurements used in Figure 7, with full input paths and operator-omission notes. |
 
-Internal mean/SD uses the five held-out folds; sample SD has `ddof=1`. Macro metrics give BUSI, UDIAT and ARC equal weight. External/clinical aggregation is five-fold mean probability per image followed by the patient maximum, with threshold `>=0.5`.
+Development metrics use image-level mean and sample SD over five held-out folds, with ddof=1. Macro metrics give BUSI, UDIAT and ARC equal weight. TDF-Net uses the corresponding outer-fold ARC-triplet-trained model for every BUSI, UDIAT and ARC development image.
 
-The clinical cohort comprises 120 malignant patients with 640 views. Its recorded truth is patient-level; clinical FN is not a per-view quantity. Specificity-matching thresholds are descriptive and do not replace the fixed deployment threshold. Pairwise intervals have no multiple-comparison correction, and the repeatedly observed external/clinical cohorts are exploratory.
+External and clinical aggregation is five-fold mean probability per image followed by the patient maximum, with probability >= 0.5 malignant. AUC-difference intervals use 2,000 class-stratified paired patient resamples. Clinical truth is patient-level for 120 malignant patients with 640 views; its reported FN counts missed patients.
 
-The four older CSVs directly under `results/` use earlier DINOv2/controlled-head protocols. They are distinct from this final result set.
+Specificity-matching thresholds describe operating points and do not replace the deployment threshold. Paired comparisons use no multiple-comparison correction, and the repeatedly observed target cohorts are exploratory.
+
+The four CSVs directly under `results/` belong to the earlier DINOv2 study and its evaluation protocol. Use this subdirectory for the URFM manuscript.

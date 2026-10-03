@@ -87,6 +87,36 @@ def test_binary_pairing_uses_identical_draws_and_seed42():
     assert first['uncertainty']['paired_difference_intervals']=={'auc':[0.,0.],'f1':[0.,0.]}
 
 
+def test_binary_bootstrap_preserves_imbalanced_patient_class_counts(monkeypatch):
+    import iada.patient_series as scoring
+    records=[{'sample_id':str(i),'patient_id':str(i),'patient_label':int(i==4)} for i in range(5)]
+    values=np.tile([.1,.3,.6,.8,.7],(5,1))
+    counts=[]
+    original=scoring._binary_metrics
+    def capture(labels,probability):
+        counts.append(np.bincount(labels,minlength=2).tolist())
+        return original(labels,probability)
+    monkeypatch.setattr(scoring,'_binary_metrics',capture)
+    report,_=score_series(records,values,cohort_kind='binary',bootstrap_repetitions=25)
+    assert len(counts)==26 and all(count==[4,1] for count in counts)
+    assert report['uncertainty']['sampling']=='class_stratified_patient_bootstrap'
+    assert report['uncertainty']['valid_resamples']==25
+
+
+def test_clinical_pairing_reports_exact_mcnemar_and_zero_discordance():
+    records=[{'sample_id':str(i),'patient_id':str(i),'patient_label':1} for i in range(8)]
+    primary=np.tile([.2]*6+[.8]*2,(5,1))
+    reference=np.full((5,8),.8)
+    report,_=score_series(records,primary,cohort_kind='malignant-only',reference_fold_probabilities=reference)
+    assert report['paired_comparison']=={
+        'primary_only_missed':6,'reference_only_missed':0,'both_missed':0,'neither_missed':2,
+        'exact_mcnemar_p':pytest.approx(.03125),
+    }
+    identical,_=score_series(records,primary,cohort_kind='malignant-only',reference_fold_probabilities=primary)
+    assert identical['paired_comparison']['both_missed']==6
+    assert identical['paired_comparison']['exact_mcnemar_p']==1.
+
+
 def write_csv(path,rows):
     with path.open('w',newline='',encoding='utf-8') as stream:
         writer=csv.DictWriter(stream,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)

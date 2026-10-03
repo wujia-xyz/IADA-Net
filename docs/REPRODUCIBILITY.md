@@ -6,11 +6,11 @@
 
 The Query model contains 312,133,266 parameters. Query trains only the 1,049,600 parameters of `context_proj`; the encoder and remaining head stay fixed in evaluation mode. Zero initialization preserves the selected Base logits. Gradients pass through the fixed readout to the adapter.
 
-The portable selected Base → Query training path and full-checkpoint inference were checked on CPU, including original full-model and official EMA loading. This release update did not rerun model fitting, five-fold inference, or saved statistical calculations. The passive SWA branch is not implemented in the new entry point.
+Use `iada.train_urfm` for the selected Base → Query path, with the official pretraining EMA at initialization and full-model checkpoints at inference. The historical passive SWA branch belongs to earlier experiment tooling. `URFMIADA` and `URFMLarge` are exported at the package root; `IADANet` retains the earlier DINOv2 API.
 
 ## Source training
 
-Exact source memberships and order are in `data/paired_source_seed42/`: 1,052 original images and 2,301 auxiliary images. Each outer fold has a separate inner selection partition. Known image families do not cross roles; this establishes image-family grouping, not complete patient identity for datasets that lack it.
+Exact source memberships and order are in `data/paired_source_seed42/`: 1,052 original images in 934 families and 2,301 auxiliary images. Normal images and exact duplicates are removed. Each outer fold has a separate inner selection partition. Known image families do not cross roles; this establishes image-family grouping, not complete patient identity for datasets that lack it.
 
 The Base schedule contains 250 epochs for historical comparator budgets; final IADA consumes the first 100. Query uses 40. Each epoch observes every original training image once and one same-label auxiliary image per original, alternating GDPH/SYSUCC within each diagnosis class. Master seed 42 and original augmentation/dropout substreams are retained.
 
@@ -22,7 +22,9 @@ Internal results use mean and sample SD (`ddof=1`) over five held-out folds per 
 
 External and clinical evaluation averages five fold probabilities per image, then takes each patient's maximum image probability. Exact 0.5 ties are malignant. Clinical truth exists only at the patient level for 120 malignant patients and 640 views. Clinical summaries therefore report TP/FN and sensitivity, rather than per-view FN, AUC, or specificity.
 
-`results/urfm_l16/` copies existing aggregate results, including the full CQ × vertical-flip ablation and unsuccessful A/C extensions. `statistics.json` retains the original paired bootstrap settings, AUC differences, McNemar tests, and specificity-matching analyses. Matching thresholds are descriptive operating-point analyses; deployment remains at 0.5. Repeatedly observed external and clinical cohorts provide exploratory evidence.
+`results/urfm_l16/PAPER_RESULTS.md` contains the six manuscript tables, including TDF-Net's completed BUSI/UDIAT inference. `development.csv` retains unrounded saved development means and SDs. TDF-Net is trained on the ARC modality triplets and uses the corresponding outer-fold model for each development image. CLS and A/C are additional saved controls in `variants.csv`; they are outside the manuscript's main tables.
+
+Paired external AUC differences use 2,000 class-stratified patient bootstrap draws and 95% percentile intervals. The public scorer preserves each class count in every draw and uses the same draws for a supplied reference. Clinical paired comparisons use the two-sided exact McNemar test, with p=1 when no patients are discordant. `statistics.json` retains the saved comparisons and specificity-matching analyses. Matching thresholds describe operating points; deployment remains at 0.5. Repeatedly observed external and clinical cohorts provide exploratory evidence.
 
 ## RTX 5090 efficiency
 
