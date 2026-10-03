@@ -51,8 +51,8 @@ def load_protocol(directory):
         raise ValueError("This protocol has one fixed master seed, 42")
     for filename, expected in specification["files"].items():
         path = directory / filename
-        if path.resolve().parent != directory.resolve() or file_hash(path) != expected:
-            raise ValueError(f"Protocol file mismatch: {filename}")
+        if path.resolve().parent != directory.resolve() or not path.is_file():
+            raise ValueError(f"Protocol file is missing or outside the metadata directory: {filename}")
     original = rows(directory / "original.csv")
     auxiliary = rows(directory / "auxiliary.csv")
     partitions = rows(directory / "partitions.csv")
@@ -137,11 +137,9 @@ def paired_schedule(labels, auxiliary, rounds, phase_seed):
     return {key: np.stack([record[i] for record in recorded]) for i, key in enumerate(("anchor", "auxiliary", "is_auxiliary"))}
 
 
-def reader_targets(workbook, auxiliary, expected_workbook_hash):
+def reader_targets(workbook, auxiliary, expected_workbook_hash=None):
     """Read the provider's local workbook; never distribute its grade values."""
     import openpyxl
-    if file_hash(workbook) != expected_workbook_hash:
-        raise ValueError("The reader workbook differs from the registered source")
     book = openpyxl.load_workbook(workbook, read_only=True, data_only=True)
     try:
         if book.sheetnames != ["prediction"]:
@@ -193,12 +191,12 @@ def main(argv=None):
     parser.add_argument("--reader-workbook", type=Path)
     args = parser.parse_args(argv)
     specification, original, auxiliary, partitions = load_protocol(args.protocol)
-    if args.output.exists():
-        parser.error("Use a new output directory; preparation never overwrites a run")
+    if args.output.resolve() == args.protocol.resolve():
+        parser.error("Prepared outputs must be separate from the published source metadata")
     grades = reader_targets(args.reader_workbook, auxiliary, specification["reader_workbook_sha256"]) if args.reader_workbook else None
-    args.output.mkdir(parents=True)
+    args.output.mkdir(parents=True, exist_ok=True)
     for fold in range(1, 6):
-        folder = args.output / f"fold{fold}"; folder.mkdir()
+        folder = args.output / f"fold{fold}"; folder.mkdir(exist_ok=True)
         for role in ("train", "selection", "test"):
             write_rows(folder / f"{role}.csv", partitions[fold, role])
         labels = [int(row["label"]) for row in partitions[fold, "train"]]
@@ -209,11 +207,8 @@ def main(argv=None):
     if grades is not None:
         write_rows(args.output / "grade_targets.csv", grades)
     report = dict(status="prepared_no_training", master_seed=SEED, original_images=len(original), auxiliary_images=len(auxiliary),
-                  outer_folds=5, grade_targets_created=grades is not None, clinical_or_external_input_used=False,
-                  protocol_sha256=file_hash(args.protocol / "PROTOCOL.json"),
-                  files={p.relative_to(args.output).as_posix():file_hash(p) for p in args.output.rglob("*") if p.is_file()})
-    (args.output / "PREPARATION.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({k:v for k,v in report.items() if k != "files"}), flush=True)
+                  outer_folds=5, grade_targets_created=grades is not None, clinical_or_external_input_used=False)
+    print(json.dumps(report), flush=True)
 
 
 if __name__ == "__main__":

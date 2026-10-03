@@ -1,92 +1,98 @@
 # IADA-Net
 
-PyTorch code for **Image-Adaptive Depth Aggregation for Whole-Image Breast Ultrasound Classification** (Jia Wu and Dongjing Shan).
+PyTorch implementation of **Image-Adaptive Depth Aggregation with Context-Conditioned Row Pooling for Whole-Image Breast Ultrasound Classification**.
 
-IADA-Net combines a DINOv2 ViT-B/14 encoder, row-attention pooling, depth encoding, and bidirectional attention. A second training stage adapts the pooling query to each image while retaining the base classifier. Inputs are complete B-mode frames and image-level benign/malignant labels.
+The final model is **URFM-L/16 + IADA**. It accepts a complete B-mode image at 224 × 224, compresses its 14 × 14 patch grid into an ordered row sequence, adds explicit depth encoding, and applies bidirectional depth interaction. Query adaptation trains only the image-conditioned pooling adapter while retaining the selected Base encoder and classifier. Inference requires no lesion crop, segmentation mask, Doppler, or elastography image.
 
 ## Installation
 
-Use Python 3.10 or newer. Install matching PyTorch and torchvision builds for your CPU/CUDA environment using the [PyTorch instructions](https://pytorch.org/get-started/locally/), then run:
+Use Python 3.10 or newer. Install matching PyTorch and torchvision builds using the [PyTorch instructions](https://pytorch.org/get-started/locally/), then:
 
 ```bash
 git clone https://github.com/wujia-xyz/IADA-Net.git
 cd IADA-Net
 pip install -e '.[test]'
-pytest -q
 ```
 
-The tests use synthetic features and do not download models or patient images.
+## Data and initialization
 
-## Data and pretrained initialization
+Obtain images from their providers: [BUSI](https://doi.org/10.1016/j.dib.2019.104863), [UDIAT](https://doi.org/10.1109/JBHI.2017.2731873), [ARC/TDF-Net](https://doi.org/10.1016/j.inffus.2024.102592), [BrEaST](https://doi.org/10.1038/s41597-024-02984-z), and [BUS-BRA](https://doi.org/10.1002/mp.16812). GDPH/SYSUCC auxiliary images are available through the [HoVer-Trans author repository](https://github.com/yuhaomo/HoVerTrans).
 
-Download datasets from their providers: [BUSI](https://doi.org/10.1016/j.dib.2019.104863), [UDIAT](https://doi.org/10.1109/JBHI.2017.2731873), [ARC/TDF-Net](https://doi.org/10.1016/j.inffus.2024.102592), [BrEaST](https://doi.org/10.1038/s41597-024-02984-z), and [BUS-BRA](https://doi.org/10.1002/mp.16812). Images and pretrained/trained weights are not bundled.
+Download **URFM ViT-L/16 pretraining**, `mae_vit_large_patch16_dec768d8b_all_biomedclip_1199.pth`, from the [URFM authors](https://github.com/sonovision-ai/URFM) / [official weight repository](https://huggingface.co/QingboKang/URFM). Base training loads `ema_state_dict`. The initialization is the pretraining checkpoint, rather than a downstream task-finetuned model. Images and pretrained/task-trained weights are not bundled.
 
-The retained internal fold assignments are in `data/splits/`. Supply `--data-root` as the BUSI directory containing `benign/` and `malignant/`, the UDIAT directory containing `original/`, or the ARC B-mode directory containing numbered patient folders. Each CSV includes the original sample identifier and image hash. See [data preparation](docs/DATA.md).
-
-For base training, obtain the official [DINOv2 ViT-B/14 backbone weights](https://dl.fbaipublicfiles.com/dinov2/dinov2_vitb14/dinov2_vitb14_pretrain.pth). The model retains DINOv2's original 37 x 37 positional table and interpolation rule, allowing existing full checkpoints to load directly.
-
-## Train IADA-Net
-
-Train the base classifier for each fold, then adapt its query using the same fold:
+`data/paired_source_seed42/` contains the final nested source partitions: 1,052 original and 2,301 auxiliary images. Prepare the fixed paired schedules:
 
 ```bash
-python -m iada.train --config configs/base.json --manifest data/splits/busi.csv --data-root data/raw/BUSI --backbone-weights weights/dinov2_vitb14_pretrain.pth --fold 1 --output outputs/busi/fold1/base --device cuda
-
-python -m iada.train --config configs/query.json --manifest data/splits/busi.csv --data-root data/raw/BUSI --base-checkpoint outputs/busi/fold1/base/best.pt --fold 1 --output outputs/busi/fold1/query --device cuda
+python -m iada.source_protocol --protocol data/paired_source_seed42 --output outputs/source_protocol
 ```
 
-Repeat for folds 1–5 and for the UDIAT/ARC manifests. `configs/readout.json` and `configs/both.json` define the adaptation controls. Base checkpoints are selected by validation F1; adaptation includes the initial model and uses AUC to resolve F1 ties. All metrics for a fold come from one selected checkpoint.
+Create a local `roots.json` with your dataset locations:
 
-The training configurations use one fixed seed, **42**. The five folds are data partitions, not five random-seed repetitions.
+```json
+{
+  "busi": "/data/BUSI",
+  "udiat": "/data/UDIAT/original",
+  "arc": "/data/ARC/BD3M",
+  "auxiliary": "/data/auxiliary"
+}
+```
 
-## Predict and evaluate
+The auxiliary root contains `GDPH/` and `SYSUCC/`. [Source preparation](docs/SOURCE_PROTOCOL.md) describes the exact roles and schedules. Preparation and the final training, prediction and scoring commands use structural checks without calculating file hashes or writing audit receipts.
+
+## Train the final model
+
+For each fold, fit Base for 100 epochs and Query for 40:
 
 ```bash
-python -m iada.predict --checkpoint outputs/busi/fold1/query/best.pt --image path/to/image.png --device cpu
+python -m iada.train_urfm --config configs/urfm_base.json --prepared outputs/source_protocol --roots roots.json --backbone-weights weights/mae_vit_large_patch16_dec768d8b_all_biomedclip_1199.pth --fold 1 --output outputs/urfm/fold1/base --device cuda
 
-python -m iada.evaluate --checkpoints outputs/busi/fold1/query/best.pt outputs/busi/fold2/query/best.pt outputs/busi/fold3/query/best.pt outputs/busi/fold4/query/best.pt outputs/busi/fold5/query/best.pt --manifest data/breast.csv --dataset breast --data-root data/raw/BrEaST --output outputs/breast_metrics.json --device cuda
+python -m iada.train_urfm --config configs/urfm_query.json --prepared outputs/source_protocol --roots roots.json --base-checkpoint outputs/urfm/fold1/base/best.pt --fold 1 --output outputs/urfm/fold1/query --device cuda
 ```
 
-The historical `iada.evaluate` command averages fold probabilities per image and then images per patient. It assigns exact 0.5 ties to benign and retains the original dataset-specific bootstrap convention. These settings belong to the archived release results.
+Repeat for folds 1–5. Both stages use seed 42, the fixed original/auxiliary schedule, and source-only selection: equal-source macro F1 at 0.5, then macro AUC, then earliest. Query includes epoch zero. Base disables vertical reflection while retaining its random draw; Query uses the original mild augmentation. Outputs are `best.pt`, `history.json`, `selection.csv`, and `RESULT.json`. Use `--resume` for an incomplete run.
 
-For a retained compact adapter, pass the original base checkpoint and `--adapter path/to/adapter.pt` to prediction. Evaluation accepts one `--adapters` entry per base checkpoint. The loader checks the adapter's base-checkpoint hash before applying its two tensors. A full model checkpoint already contains its encoder and requires no separate initialization file for inference.
+This portable entry point implements selected Base → Query. It does not implement the historical passive SWA branch. [Training details](docs/TRAIN_SOURCE.md) specify the optimizer, losses, precision and selection rules.
 
-### Patient-series scoring
+## Predict and score
 
-The newer patient-series protocol averages the five fold probabilities **for each image**, then takes the **maximum image probability per patient**. A probability of at least 0.5 is positive. Score saved fold probabilities with:
+The loader supports the final R9 full-model checkpoints and the earlier DINOv2 models. A full task-trained checkpoint includes its encoder and requires no separate pretraining file for inference.
 
 ```bash
-python -m iada.score_patient_series --manifest patient_manifest.csv --fold-predictions fold1.csv fold2.csv fold3.csv fold4.csv fold5.csv --cohort-kind malignant-only --output outputs/series_metrics.json
+python -m iada.predict --checkpoint outputs/urfm/fold1/query/best.pt --image path/to/image.png --device cuda
+
+python -m iada.predict_manifest --checkpoint outputs/urfm/fold1/query/best.pt --manifest evaluation_manifest.csv --data-root /data/evaluation --output outputs/predictions/fold1.csv --device cuda --batch-size 32
 ```
 
-The manifest requires `sample_id`, `patient_id`, and `patient_label`. Each prediction file requires `sample_id` and `probability`; files are joined by ID and must cover the complete manifest. Patient labels do not assert pathology for every image. A malignant-only series reports TP, FN, sensitivity and an exact 95% interval. For a mixed-class public cohort, use `--cohort-kind binary`; its patient bootstrap defaults to 2,000 valid resamples and seed 42. See [patient-series evaluation](docs/PATIENT_SERIES.md) for paired comparisons and optional patient-level output.
-
-This command scores existing predictions. It does not train a model, select a checkpoint, alter its probabilities or make the historical and newer protocols interchangeable.
-
-## Controlled aggregation study
+The manifest supplies a unique `sample_id` and `image_path` per image. Patient scoring also requires `patient_id` and explicit `patient_label`. Produce one prediction CSV per fold, then:
 
 ```bash
-python -m iada.cache_features --manifest data/splits/busi.csv --data-root data/raw/BUSI --dataset busi --weights weights/dinov2_vitb14_pretrain.pth --output cache/busi.npy --views 8 --device cuda
-
-python -m iada.train_matched --features cache/busi.npy --manifest data/splits/busi.csv --dataset busi --kind depth --fold 1 --output outputs/matched/depth/busi/fold1 --device cuda
+python -m iada.score_patient_series --manifest evaluation_manifest.csv --fold-predictions outputs/predictions/fold1.csv outputs/predictions/fold2.csv outputs/predictions/fold3.csv outputs/predictions/fold4.csv outputs/predictions/fold5.csv --cohort-kind binary --output outputs/evaluation.json
 ```
 
-Run all four head kinds (`gap`, `gated`, `cls_mean`, `depth`) on all five folds. They use the same frozen encoder features, view draws, and approximately 6.3 million trainable parameters. Cache external images with `--views 1`, then use `python -m iada.evaluate_heads --help` for patient-level evaluation and feature-order probes. Query-content control functions are in `iada/probes.py`.
+The final rule is **mean fold probability per image → maximum image probability per patient**, with `probability >= 0.5` positive. Use `--cohort-kind malignant-only` for the clinical series, which reports sensitivity and TP/FN with an exact interval. [Patient-series documentation](docs/PATIENT_SERIES.md) describes paired comparisons and complete input alignment. The earlier `iada.evaluate` command uses a different historical aggregation rule.
 
-## Results and reproduction
+## Saved five-fold results
 
-`results/` contains the retained aggregate results underlying the main external evaluation and controlled aggregation study. [Reproduction notes](docs/REPRODUCIBILITY.md) describe the original checkpoints, protocol distinctions, and the relationship between the release and historical runs. The repository is a code release; complete training from new initialization is required when the original task-trained checkpoints are not available.
+These are saved R9 results, not experiments rerun during the repository update:
 
-The [aggregation analysis](docs/THEORY.md) states the encoded-feature scope of the row-compression separation and contextual derivative. It is separate from empirical performance claims. New experimental results are not supplied by the patient-series scoring utility.
+| URFM-L/16 readout | Internal macro AUC | Internal macro F1 | BrEaST AUC | BUS-BRA AUC | External mean AUC | Clinical FN / 120 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| **IADA-Net** | 0.9286 | **0.8536** | **0.9065** | 0.9246 | **0.9155** | 15 |
+| CLS | **0.9341** | 0.8467 | 0.8999 | **0.9273** | 0.9136 | 16 |
+| GAP | 0.9291 | 0.8319 | 0.9019 | 0.9183 | 0.9101 | **14** |
+| w/o explicit depth | 0.9168 | 0.8307 | 0.9009 | 0.9127 | 0.9068 | **14** |
+| w/o DBI | 0.9258 | 0.8292 | 0.8958 | 0.9243 | 0.9100 | 17 |
 
-The optional [source-reader grade head](docs/READER_GRADES.md) adds training-only ordinal supervision and can be removed without changing diagnosis outputs. It is supplied as a separate component for source-supervision comparisons and does not alter the historical runner.
+Internal values average the three source datasets' five-fold means; per-dataset sample SDs are in the saved tables. External AUCs use the five selected fold models under the patient rule above. External mean AUC gives the two external cohorts equal weight.
 
-The later study's [fixed source protocol](docs/SOURCE_PROTOCOL.md) supplies public-source metadata and a command that recreates the exact nested roles, paired image schedules, and optional reader correspondence control. The metadata and preparation command are separate from the older `data/splits/` training workflow. Images and reader workbook values remain with their original providers.
+Against the nine reproduced methods, final IADA has the highest AUC point estimate on both external cohorts and ties TDF-Net for fewest clinical misses (15/120). Saved paired 95% AUC-difference intervals exclude zero for all nine BUS-BRA comparisons and eight BrEaST comparisons; BrEaST versus CAM-QUS includes zero. These are exploratory comparisons without multiple-comparison correction. The full ablation table retains the actual tradeoffs, including metrics where an ablation is higher.
 
-For the later training workflow, use [iada.train_source](docs/TRAIN_SOURCE.md). It trains one fixed-seed fold/stage, supports the reader controls, the binary no-vertical-flip control and explicit resume, and keeps the historical runner intact. `iada.predict_manifest` writes full per-image probabilities for the patient-series scorer; it also accepts graded base checkpoints by removing their training-only reader head.
+[Final result files](results/urfm_l16/) contain same-backbone and encoder controls, CQ × vertical-flip results, external/clinical aggregates, paired statistics, and all 18 RTX 5090 efficiency measurements. Private images, patient IDs and clinical per-image predictions are not published. Efficiency uses FP32, TF32 off, 10 warm-ups and 50 synchronized measurements; uncounted FLOP operators are identified per row.
 
-The earlier [DABI-Net repository](https://github.com/wujia-xyz/DABI-Net) provides the predecessor model and comparison implementations. This repository contains the current IADA-Net model and controlled heads, with portable dataset and checkpoint paths.
+## Earlier implementations
+
+The DINOv2-B/14 implementation and controlled-head study remain available for their archived results. Files directly under `results/` belong to that earlier study; final results are under `results/urfm_l16/`. [Reproduction notes](docs/REPRODUCIBILITY.md) distinguish the protocols. The [DABI-Net predecessor](https://github.com/wujia-xyz/DABI-Net) contains earlier comparison implementations.
 
 ## Citation and license
 
-Use `CITATION.cff` for this software. The accompanying paper is a manuscript; a publication DOI will be added when available. This code is distributed under the MIT license. DINOv2, timm, and the datasets retain their respective licenses; see [third-party notices](docs/THIRD_PARTY.md).
+See [CITATION.cff](CITATION.cff) for the software and accompanying manuscript citation. This code uses the MIT license. URFM, DINOv2, timm and datasets retain their own terms; see [third-party notices](docs/THIRD_PARTY.md).

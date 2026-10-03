@@ -12,7 +12,7 @@ from scipy.special import expit
 
 from .checkpoints import load_model
 from .data import image_tensor
-from .source_protocol import file_hash, rows
+from .source_protocol import rows
 
 
 def main(argv=None):
@@ -26,8 +26,8 @@ def main(argv=None):
     parser.add_argument("--batch-size",type=int,default=32)
     args = parser.parse_args(argv)
     if args.batch_size<1: parser.error("Batch size must be positive")
-    receipt_path = args.output.with_suffix(args.output.suffix+".json")
-    if args.output.exists() or receipt_path.exists(): parser.error("Use new prediction and receipt paths")
+    if args.output.resolve() in {args.manifest.resolve(), args.checkpoint.resolve()}:
+        parser.error("Predictions must not overwrite the manifest or checkpoint")
     records = rows(args.manifest)
     if not records or any(not record.get("sample_id") for record in records): parser.error("Every image needs a sample_id")
     if len({record["sample_id"] for record in records})!=len(records): parser.error("sample_id must be unique")
@@ -43,8 +43,7 @@ def main(argv=None):
             path=(root/record["relative_path"]).resolve()
             if not path.is_relative_to(root): parser.error("An image path leaves its named dataset root")
         else: parser.error("Provide image_path, or root_key/relative_path with --roots")
-        if record.get("image_sha256") and file_hash(path)!=record["image_sha256"]:
-            parser.error(f"Image hash differs: {record['sample_id']}")
+        if not path.is_file(): parser.error(f"Image is missing: {record['sample_id']}")
         paths.append(path)
     torch.set_num_threads(4);torch.set_float32_matmul_precision("highest");torch.use_deterministic_algorithms(True)
     torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False;torch.backends.cudnn.benchmark=False
@@ -59,20 +58,16 @@ def main(argv=None):
             scores.extend((logits[:,1].double()-logits[:,0].double()).cpu().tolist())
     probabilities=expit(np.asarray(scores,np.float64))
     args.output.parent.mkdir(parents=True,exist_ok=True)
-    temporary=args.output.with_suffix(args.output.suffix+".tmp")
-    with temporary.open("x",encoding="utf-8",newline="") as stream:
+    with args.output.open("w",encoding="utf-8",newline="") as stream:
         writer=csv.DictWriter(stream,fieldnames=["sample_id","score","probability"],lineterminator="\n")
         writer.writeheader()
         for record,score,probability in zip(records,scores,probabilities):
             writer.writerow(dict(sample_id=record["sample_id"],score=format(score,".17g"),probability=format(probability,".17g")))
-    temporary.replace(args.output)
-    receipt=dict(status="complete",images=len(records),checkpoint_sha256=file_hash(args.checkpoint),
-                 manifest_sha256=file_hash(args.manifest),prediction_sha256=file_hash(args.output),
+    summary=dict(status="complete",images=len(records),
                  probability="scipy expit of the float64 difference between FP32 class logits",
                  manifest_order_preserved=True,diagnosis_labels_used=False,patient_aggregation_performed=False,
-                 device=args.device,roots_sha256=file_hash(args.roots) if args.roots else None)
-    receipt_path.write_text(json.dumps(receipt,indent=2)+"\n",encoding="utf-8")
-    print(json.dumps(receipt),flush=True)
+                 device=args.device)
+    print(json.dumps(summary),flush=True)
 
 
 if __name__=="__main__":main()

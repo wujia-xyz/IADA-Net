@@ -1,0 +1,1260 @@
+{
+  "reference_method": "R9 u16_iada__selected",
+  "score_rule": "fivefold probability mean per image, then patient maximum",
+  "bootstrap": {
+    "resamples": 2000,
+    "seed": 42,
+    "unit": "patient",
+    "paired": true,
+    "stratification": "true class within each public cohort",
+    "interval": "95% percentile"
+  },
+  "threshold_primary": 0.5,
+  "comparisons": {
+    "breast/ResNet18": {
+      "baseline": "ResNet-18",
+      "cohort": "breast",
+      "n_patients": 252,
+      "auc_difference_iada_minus_baseline": 0.03703949112112381,
+      "auc_difference_ci95": [
+        0.004701166180757876,
+        0.0709034587861117
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 24,
+        "corrected_by_ours": 9,
+        "new_misses_ours": 0,
+        "shared_misses": 15,
+        "exact_mcnemar_p": 0.00390625
+      },
+      "matched_specificity": {
+        "threshold": 0.5466594740662479,
+        "comparator_specificity_at_0_5": 0.7792207792207793,
+        "iada_specificity_at_threshold": 0.7792207792207793,
+        "iada_clinical_fn_at_threshold": 16,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.9065067585475749,
+      "comparator_auc": 0.8694672674264511
+    },
+    "busbra/ResNet18": {
+      "baseline": "ResNet-18",
+      "cohort": "busbra",
+      "n_patients": 1064,
+      "auc_difference_iada_minus_baseline": 0.09026664074776036,
+      "auc_difference_ci95": [
+        0.0659270666277884,
+        0.11457007014304006
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 24,
+        "corrected_by_ours": 9,
+        "new_misses_ours": 0,
+        "shared_misses": 15,
+        "exact_mcnemar_p": 0.00390625
+      },
+      "matched_specificity": {
+        "threshold": 0.5569412724041904,
+        "comparator_specificity_at_0_5": 0.6772853185595568,
+        "iada_specificity_at_threshold": 0.6772853185595568,
+        "iada_clinical_fn_at_threshold": 16,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.924559783577133,
+      "comparator_auc": 0.8342931428293726
+    },
+    "breast/ViT_B": {
+      "baseline": "ViT-B/16",
+      "cohort": "breast",
+      "n_patients": 252,
+      "auc_difference_iada_minus_baseline": 0.04624966869864833,
+      "auc_difference_ci95": [
+        0.012248210972700641,
+        0.08150675854757482
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 17,
+        "corrected_by_ours": 2,
+        "new_misses_ours": 0,
+        "shared_misses": 15,
+        "exact_mcnemar_p": 0.5
+      },
+      "matched_specificity": {
+        "threshold": 0.5779365092575415,
+        "comparator_specificity_at_0_5": 0.7857142857142857,
+        "iada_specificity_at_threshold": 0.7857142857142857,
+        "iada_clinical_fn_at_threshold": 16,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.9065067585475749,
+      "comparator_auc": 0.8602570898489266
+    },
+    "busbra/ViT_B": {
+      "baseline": "ViT-B/16",
+      "cohort": "busbra",
+      "n_patients": 1064,
+      "auc_difference_iada_minus_baseline": 0.08157570750514331,
+      "auc_difference_ci95": [
+        0.06088016960684262,
+        0.10358865480876697
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 17,
+        "corrected_by_ours": 2,
+        "new_misses_ours": 0,
+        "shared_misses": 15,
+        "exact_mcnemar_p": 0.5
+      },
+      "matched_specificity": {
+        "threshold": 0.5069285492822585,
+        "comparator_specificity_at_0_5": 0.6565096952908587,
+        "iada_specificity_at_threshold": 0.6565096952908587,
+        "iada_clinical_fn_at_threshold": 15,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.924559783577133,
+      "comparator_auc": 0.8429840760719897
+    },
+    "breast/ConvNeXt_B": {
+      "baseline": "ConvNeXt-B",
+      "cohort": "breast",
+      "n_patients": 252,
+      "auc_difference_iada_minus_baseline": 0.03988868274582558,
+      "auc_difference_ci95": [
+        0.004702822687516531,
+        0.07507619931089327
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 16,
+        "corrected_by_ours": 3,
+        "new_misses_ours": 2,
+        "shared_misses": 13,
+        "exact_mcnemar_p": 1.0
+      },
+      "matched_specificity": {
+        "threshold": 0.33132657071123084,
+        "comparator_specificity_at_0_5": 0.7272727272727273,
+        "iada_specificity_at_threshold": 0.7272727272727273,
+        "iada_clinical_fn_at_threshold": 12,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.9065067585475749,
+      "comparator_auc": 0.8666180758017493
+    },
+    "busbra/ConvNeXt_B": {
+      "baseline": "ConvNeXt-B",
+      "cohort": "busbra",
+      "n_patients": 1064,
+      "auc_difference_iada_minus_baseline": 0.05376958092368489,
+      "auc_difference_ci95": [
+        0.033899803178306036,
+        0.07504485185725171
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 16,
+        "corrected_by_ours": 3,
+        "new_misses_ours": 2,
+        "shared_misses": 13,
+        "exact_mcnemar_p": 1.0
+      },
+      "matched_specificity": {
+        "threshold": 0.3836310814946222,
+        "comparator_specificity_at_0_5": 0.6052631578947368,
+        "iada_specificity_at_threshold": 0.6052631578947368,
+        "iada_clinical_fn_at_threshold": 12,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.924559783577133,
+      "comparator_auc": 0.8707902026534481
+    },
+    "breast/SW_ForkNet": {
+      "baseline": "SW-ForkNet",
+      "cohort": "breast",
+      "n_patients": 252,
+      "auc_difference_iada_minus_baseline": 0.05049032600053016,
+      "auc_difference_ci95": [
+        0.012384044526901755,
+        0.08866121123774173
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 20,
+        "corrected_by_ours": 5,
+        "new_misses_ours": 0,
+        "shared_misses": 15,
+        "exact_mcnemar_p": 0.0625
+      },
+      "matched_specificity": {
+        "threshold": 0.3444870845224807,
+        "comparator_specificity_at_0_5": 0.7337662337662337,
+        "iada_specificity_at_threshold": 0.7337662337662337,
+        "iada_clinical_fn_at_threshold": 12,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.9065067585475749,
+      "comparator_auc": 0.8560164325470447
+    },
+    "busbra/SW_ForkNet": {
+      "baseline": "SW-ForkNet",
+      "cohort": "busbra",
+      "n_patients": 1064,
+      "auc_difference_iada_minus_baseline": 0.08332523367513889,
+      "auc_difference_ci95": [
+        0.059718779867489635,
+        0.10672271630137202
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 20,
+        "corrected_by_ours": 5,
+        "new_misses_ours": 0,
+        "shared_misses": 15,
+        "exact_mcnemar_p": 0.0625
+      },
+      "matched_specificity": {
+        "threshold": 0.1914162316399441,
+        "comparator_specificity_at_0_5": 0.49722991689750695,
+        "iada_specificity_at_threshold": 0.49722991689750695,
+        "iada_clinical_fn_at_threshold": 11,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.924559783577133,
+      "comparator_auc": 0.8412345499019941
+    },
+    "breast/HoVerTrans": {
+      "baseline": "HoVer-Trans",
+      "cohort": "breast",
+      "n_patients": 252,
+      "auc_difference_iada_minus_baseline": 0.22091174131990454,
+      "auc_difference_ci95": [
+        0.15822124304267157,
+        0.2858517757752451
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 23,
+        "corrected_by_ours": 9,
+        "new_misses_ours": 1,
+        "shared_misses": 14,
+        "exact_mcnemar_p": 0.021484375
+      },
+      "matched_specificity": {
+        "threshold": 0.49420370937861574,
+        "comparator_specificity_at_0_5": 0.7662337662337663,
+        "iada_specificity_at_threshold": 0.7662337662337663,
+        "iada_clinical_fn_at_threshold": 15,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.9065067585475749,
+      "comparator_auc": 0.6855950172276704
+    },
+    "busbra/HoVerTrans": {
+      "baseline": "HoVer-Trans",
+      "cohort": "busbra",
+      "n_patients": 1064,
+      "auc_difference_iada_minus_baseline": 0.1612803939673746,
+      "auc_difference_ci95": [
+        0.13141634673016786,
+        0.19106638074873236
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 23,
+        "corrected_by_ours": 9,
+        "new_misses_ours": 1,
+        "shared_misses": 14,
+        "exact_mcnemar_p": 0.021484375
+      },
+      "matched_specificity": {
+        "threshold": 0.6560189770912366,
+        "comparator_specificity_at_0_5": 0.7285318559556787,
+        "iada_specificity_at_threshold": 0.7285318559556787,
+        "iada_clinical_fn_at_threshold": 17,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.924559783577133,
+      "comparator_auc": 0.7632793896097584
+    },
+    "breast/MsGoF_2023_repaired": {
+      "baseline": "MsGoF",
+      "cohort": "breast",
+      "n_patients": 252,
+      "auc_difference_iada_minus_baseline": 0.26881791677710043,
+      "auc_difference_ci95": [
+        0.1988454147892923,
+        0.34356281473628414
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 82,
+        "corrected_by_ours": 67,
+        "new_misses_ours": 0,
+        "shared_misses": 15,
+        "exact_mcnemar_p": 1.3552527156068805e-20
+      },
+      "matched_specificity": {
+        "threshold": 0.9781334123415275,
+        "comparator_specificity_at_0_5": 0.9935064935064936,
+        "iada_specificity_at_threshold": 0.9935064935064936,
+        "iada_clinical_fn_at_threshold": 77,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.9065067585475749,
+      "comparator_auc": 0.6376888417704745
+    },
+    "busbra/MsGoF_2023_repaired": {
+      "baseline": "MsGoF",
+      "cohort": "busbra",
+      "n_patients": 1064,
+      "auc_difference_iada_minus_baseline": 0.2584783172150136,
+      "auc_difference_ci95": [
+        0.22185601642610683,
+        0.29480255058236543
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 82,
+        "corrected_by_ours": 67,
+        "new_misses_ours": 0,
+        "shared_misses": 15,
+        "exact_mcnemar_p": 1.3552527156068805e-20
+      },
+      "matched_specificity": {
+        "threshold": 0.9755544275409196,
+        "comparator_specificity_at_0_5": 0.9321329639889196,
+        "iada_specificity_at_threshold": 0.9321329639889196,
+        "iada_clinical_fn_at_threshold": 39,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.924559783577133,
+      "comparator_auc": 0.6660814663621194
+    },
+    "breast/CAM_QUS_full_partial_annotation": {
+      "baseline": "CAM-QUS",
+      "cohort": "breast",
+      "n_patients": 252,
+      "auc_difference_iada_minus_baseline": 0.03597932679565341,
+      "auc_difference_ci95": [
+        -1.6565067585487983e-06,
+        0.0720398224224753
+      ],
+      "ci_excludes_zero": false,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 18,
+        "corrected_by_ours": 3,
+        "new_misses_ours": 0,
+        "shared_misses": 15,
+        "exact_mcnemar_p": 0.25
+      },
+      "matched_specificity": {
+        "threshold": 0.4521161353528068,
+        "comparator_specificity_at_0_5": 0.7597402597402597,
+        "iada_specificity_at_threshold": 0.7597402597402597,
+        "iada_clinical_fn_at_threshold": 13,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.9065067585475749,
+      "comparator_auc": 0.8705274317519215
+    },
+    "busbra/CAM_QUS_full_partial_annotation": {
+      "baseline": "CAM-QUS",
+      "cohort": "busbra",
+      "n_patients": 1064,
+      "auc_difference_iada_minus_baseline": 0.0907445205812315,
+      "auc_difference_ci95": [
+        0.06813402099431409,
+        0.11418331146425616
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 18,
+        "corrected_by_ours": 3,
+        "new_misses_ours": 0,
+        "shared_misses": 15,
+        "exact_mcnemar_p": 0.25
+      },
+      "matched_specificity": {
+        "threshold": 0.16834555557816785,
+        "comparator_specificity_at_0_5": 0.481994459833795,
+        "iada_specificity_at_threshold": 0.481994459833795,
+        "iada_clinical_fn_at_threshold": 11,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.924559783577133,
+      "comparator_auc": 0.8338152629959015
+    },
+    "breast/MB_DCNN_predicted_mask": {
+      "baseline": "MB-DCNN",
+      "cohort": "breast",
+      "n_patients": 252,
+      "auc_difference_iada_minus_baseline": 0.05049032600053005,
+      "auc_difference_ci95": [
+        0.009339385104691329,
+        0.09217134905910407
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 26,
+        "corrected_by_ours": 12,
+        "new_misses_ours": 1,
+        "shared_misses": 14,
+        "exact_mcnemar_p": 0.00341796875
+      },
+      "matched_specificity": {
+        "threshold": 0.2741860305960235,
+        "comparator_specificity_at_0_5": 0.7077922077922078,
+        "iada_specificity_at_threshold": 0.7077922077922078,
+        "iada_clinical_fn_at_threshold": 12,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.9065067585475749,
+      "comparator_auc": 0.8560164325470448
+    },
+    "busbra/MB_DCNN_predicted_mask": {
+      "baseline": "MB-DCNN",
+      "cohort": "busbra",
+      "n_patients": 1064,
+      "auc_difference_iada_minus_baseline": 0.09023424211498265,
+      "auc_difference_ci95": [
+        0.06818170773193367,
+        0.11343287813254285
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 26,
+        "corrected_by_ours": 12,
+        "new_misses_ours": 1,
+        "shared_misses": 14,
+        "exact_mcnemar_p": 0.00341796875
+      },
+      "matched_specificity": {
+        "threshold": 0.618246298563803,
+        "comparator_specificity_at_0_5": 0.7105263157894737,
+        "iada_specificity_at_threshold": 0.7105263157894737,
+        "iada_clinical_fn_at_threshold": 16,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.924559783577133,
+      "comparator_auc": 0.8343255414621503
+    },
+    "breast/TDF_ARC_Bmode": {
+      "baseline": "TDF-Net (B-mode)",
+      "cohort": "breast",
+      "n_patients": 252,
+      "auc_difference_iada_minus_baseline": 0.0569838324940366,
+      "auc_difference_ci95": [
+        0.008082096474953612,
+        0.10728034720381661
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 15,
+        "corrected_by_ours": 4,
+        "new_misses_ours": 4,
+        "shared_misses": 11,
+        "exact_mcnemar_p": 1.0
+      },
+      "matched_specificity": {
+        "threshold": 0.7801016471897831,
+        "comparator_specificity_at_0_5": 0.8376623376623377,
+        "iada_specificity_at_threshold": 0.8376623376623377,
+        "iada_clinical_fn_at_threshold": 19,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.9065067585475749,
+      "comparator_auc": 0.8495229260535383
+    },
+    "busbra/TDF_ARC_Bmode": {
+      "baseline": "TDF-Net (B-mode)",
+      "cohort": "busbra",
+      "n_patients": 1064,
+      "auc_difference_iada_minus_baseline": 0.12466183927038288,
+      "auc_difference_ci95": [
+        0.09880368048468369,
+        0.15007866793021327
+      ],
+      "ci_excludes_zero": true,
+      "clinical_at_0_5": {
+        "patients": 120,
+        "ours_fn_at_0_5": 15,
+        "comparator_fn_at_0_5": 15,
+        "corrected_by_ours": 4,
+        "new_misses_ours": 4,
+        "shared_misses": 11,
+        "exact_mcnemar_p": 1.0
+      },
+      "matched_specificity": {
+        "threshold": 0.25746224762997433,
+        "comparator_specificity_at_0_5": 0.5263157894736842,
+        "iada_specificity_at_threshold": 0.5263157894736842,
+        "iada_clinical_fn_at_threshold": 12,
+        "rule": "smallest IADA threshold attaining comparator specificity on the public benign patients"
+      },
+      "reference_auc": 0.924559783577133,
+      "comparator_auc": 0.7998979443067501
+    }
+  },
+  "status": "complete",
+  "matched_models": {
+    "URFM-L IADA": {
+      "internal_image_fivefold_mean_sample_sd": {
+        "busi": {
+          "auc": {
+            "mean": 0.9749214073372052,
+            "sample_sd": 0.014223546799525559
+          },
+          "f1": {
+            "mean": 0.8766566837192501,
+            "sample_sd": 0.030428217089873835
+          }
+        },
+        "udiat": {
+          "auc": {
+            "mean": 0.9099647189599344,
+            "sample_sd": 0.0866516470926803
+          },
+          "f1": {
+            "mean": 0.8542158426368951,
+            "sample_sd": 0.05301785551543697
+          }
+        },
+        "arc": {
+          "auc": {
+            "mean": 0.9009297052154196,
+            "sample_sd": 0.0579446978042296
+          },
+          "f1": {
+            "mean": 0.8299741602067183,
+            "sample_sd": 0.08496538966460944
+          }
+        }
+      },
+      "target_image_fivefold_mean_then_patient_max": {
+        "breast": {
+          "auc": 0.9065067585475749,
+          "f1": 0.7818181818181819,
+          "sensitivity": 0.8775510204081632,
+          "specificity": 0.7662337662337663
+        },
+        "busbra": {
+          "auc": 0.924559783577133,
+          "f1": 0.7067833698030634,
+          "sensitivity": 0.9444444444444444,
+          "specificity": 0.6551246537396122
+        },
+        "clinical": {
+          "fn": 15,
+          "sensitivity": 0.875
+        }
+      },
+      "internal_macro": {
+        "auc": {
+          "mean": 0.9286052771708531,
+          "sample_sd": 0.023029460589006585,
+          "per_fold": [
+            0.9214111558939145,
+            0.9113171760899034,
+            0.9117743368803054,
+            0.9670680532749497,
+            0.9314556637151918
+          ],
+          "folds": 5,
+          "ddof": 1
+        },
+        "f1": {
+          "mean": 0.853615562187621,
+          "sample_sd": 0.018695689600376132,
+          "per_fold": [
+            0.8769980506822611,
+            0.8252410663641521,
+            0.8559218559218559,
+            0.8506377166373973,
+            0.8592791213324396
+          ],
+          "folds": 5,
+          "ddof": 1
+        }
+      }
+    },
+    "URFM-L CLS": {
+      "internal_image_fivefold_mean_sample_sd": {
+        "busi": {
+          "auc": {
+            "mean": 0.9641841545249725,
+            "sample_sd": 0.02651894167840216
+          },
+          "f1": {
+            "mean": 0.8645509913705851,
+            "sample_sd": 0.042632212262742705
+          }
+        },
+        "udiat": {
+          "auc": {
+            "mean": 0.9119704219225749,
+            "sample_sd": 0.06049786245074772
+          },
+          "f1": {
+            "mean": 0.8354051796157058,
+            "sample_sd": 0.04812575389133238
+          }
+        },
+        "arc": {
+          "auc": {
+            "mean": 0.9260067245288919,
+            "sample_sd": 0.03713642479542721
+          },
+          "f1": {
+            "mean": 0.8400828157349896,
+            "sample_sd": 0.0580123798735737
+          }
+        }
+      },
+      "target_image_fivefold_mean_then_patient_max": {
+        "breast": {
+          "auc": 0.8999469917837265,
+          "f1": 0.794392523364486,
+          "sensitivity": 0.8673469387755102,
+          "specificity": 0.7987012987012987
+        },
+        "busbra": {
+          "auc": 0.9273420161669177,
+          "f1": 0.7312572087658593,
+          "sensitivity": 0.9269005847953217,
+          "specificity": 0.7119113573407202
+        },
+        "clinical": {
+          "fn": 16,
+          "sensitivity": 0.8666666666666667
+        }
+      },
+      "internal_macro": {
+        "auc": {
+          "mean": 0.9340537669921464,
+          "sample_sd": 0.020311335335666904,
+          "per_fold": [
+            0.9629347663830422,
+            0.9192531374349556,
+            0.9191148841738829,
+            0.9481485251077727,
+            0.9208175218610789
+          ],
+          "folds": 5,
+          "ddof": 1
+        },
+        "f1": {
+          "mean": 0.8466796622404269,
+          "sample_sd": 0.013711374621123623,
+          "per_fold": [
+            0.8636126180429978,
+            0.8269980506822612,
+            0.8494806320893278,
+            0.8407344871253694,
+            0.8525725232621784
+          ],
+          "folds": 5,
+          "ddof": 1
+        }
+      }
+    },
+    "URFM-L GAP": {
+      "internal_image_fivefold_mean_sample_sd": {
+        "busi": {
+          "auc": {
+            "mean": 0.9604497807725554,
+            "sample_sd": 0.01214200714888614
+          },
+          "f1": {
+            "mean": 0.8677875186232988,
+            "sample_sd": 0.010539307857138776
+          }
+        },
+        "udiat": {
+          "auc": {
+            "mean": 0.9137615388333092,
+            "sample_sd": 0.04905105729668825
+          },
+          "f1": {
+            "mean": 0.8164380648591175,
+            "sample_sd": 0.12449570023078166
+          }
+        },
+        "arc": {
+          "auc": {
+            "mean": 0.9131527093596059,
+            "sample_sd": 0.048543292643236965
+          },
+          "f1": {
+            "mean": 0.8116023459389965,
+            "sample_sd": 0.06412819591395907
+          }
+        }
+      },
+      "target_image_fivefold_mean_then_patient_max": {
+        "breast": {
+          "auc": 0.9018685396236417,
+          "f1": 0.784688995215311,
+          "sensitivity": 0.8367346938775511,
+          "specificity": 0.8116883116883117
+        },
+        "busbra": {
+          "auc": 0.9182906481346487,
+          "f1": 0.697928026172301,
+          "sensitivity": 0.935672514619883,
+          "specificity": 0.646814404432133
+        },
+        "clinical": {
+          "fn": 14,
+          "sensitivity": 0.8833333333333333
+        }
+      },
+      "internal_macro": {
+        "auc": {
+          "mean": 0.9291213429884903,
+          "sample_sd": 0.017347949724792817,
+          "per_fold": [
+            0.9301371680682026,
+            0.9121523678341861,
+            0.9290587935335329,
+            0.9569606348603213,
+            0.917297750646208
+          ],
+          "folds": 5,
+          "ddof": 1
+        },
+        "f1": {
+          "mean": 0.831942643140471,
+          "sample_sd": 0.043833623895278936,
+          "per_fold": [
+            0.8753143841515935,
+            0.8104636591478697,
+            0.7661424606845513,
+            0.8489215871219266,
+            0.8588711245964135
+          ],
+          "folds": 5,
+          "ddof": 1
+        }
+      }
+    },
+    "URFM-L no-DBI": {
+      "internal_image_fivefold_mean_sample_sd": {
+        "busi": {
+          "auc": {
+            "mean": 0.9589655172413792,
+            "sample_sd": 0.02693795448189978
+          },
+          "f1": {
+            "mean": 0.8684337515701133,
+            "sample_sd": 0.043653675783838226
+          }
+        },
+        "udiat": {
+          "auc": {
+            "mean": 0.8972562950074912,
+            "sample_sd": 0.055077539102975186
+          },
+          "f1": {
+            "mean": 0.7900083542188805,
+            "sample_sd": 0.1160726885559237
+          }
+        },
+        "arc": {
+          "auc": {
+            "mean": 0.9212588943623427,
+            "sample_sd": 0.04866358047634689
+          },
+          "f1": {
+            "mean": 0.8290272517632008,
+            "sample_sd": 0.06844924858724787
+          }
+        }
+      },
+      "target_image_fivefold_mean_then_patient_max": {
+        "breast": {
+          "auc": 0.8957725947521865,
+          "f1": 0.7641509433962265,
+          "sensitivity": 0.826530612244898,
+          "specificity": 0.7857142857142857
+        },
+        "busbra": {
+          "auc": 0.9243248934894948,
+          "f1": 0.7280898876404495,
+          "sensitivity": 0.9473684210526315,
+          "specificity": 0.6897506925207756
+        },
+        "clinical": {
+          "fn": 17,
+          "sensitivity": 0.8583333333333333
+        }
+      },
+      "internal_macro": {
+        "auc": {
+          "mean": 0.9258269022037378,
+          "sample_sd": 0.01823609661077261,
+          "per_fold": [
+            0.9235051666086148,
+            0.9041344177707814,
+            0.9404927766996732,
+            0.9477562609224052,
+            0.9132458890172138
+          ],
+          "folds": 5,
+          "ddof": 1
+        },
+        "f1": {
+          "mean": 0.8291564525173981,
+          "sample_sd": 0.030994891911817802,
+          "per_fold": [
+            0.8784529073360909,
+            0.8190476190476191,
+            0.7935587761674717,
+            0.8316490150106448,
+            0.8230739450251644
+          ],
+          "folds": 5,
+          "ddof": 1
+        }
+      }
+    },
+    "URFM-L no-depth": {
+      "internal_image_fivefold_mean_sample_sd": {
+        "busi": {
+          "auc": {
+            "mean": 0.9622479231540979,
+            "sample_sd": 0.02889101606758986
+          },
+          "f1": {
+            "mean": 0.8880561251613883,
+            "sample_sd": 0.04047500054237109
+          }
+        },
+        "udiat": {
+          "auc": {
+            "mean": 0.8938234014789039,
+            "sample_sd": 0.06184450589795501
+          },
+          "f1": {
+            "mean": 0.7686077939947908,
+            "sample_sd": 0.10717130130905406
+          }
+        },
+        "arc": {
+          "auc": {
+            "mean": 0.8942075220892954,
+            "sample_sd": 0.05027468531759325
+          },
+          "f1": {
+            "mean": 0.8354562804834946,
+            "sample_sd": 0.03718957366604454
+          }
+        }
+      },
+      "target_image_fivefold_mean_then_patient_max": {
+        "breast": {
+          "auc": 0.900940895838855,
+          "f1": 0.7887323943661971,
+          "sensitivity": 0.8571428571428571,
+          "specificity": 0.7987012987012987
+        },
+        "busbra": {
+          "auc": 0.9127423822714682,
+          "f1": 0.7262313860252004,
+          "sensitivity": 0.9269005847953217,
+          "specificity": 0.703601108033241
+        },
+        "clinical": {
+          "fn": 14,
+          "sensitivity": 0.8833333333333333
+        }
+      },
+      "internal_macro": {
+        "auc": {
+          "mean": 0.9167596155740991,
+          "sample_sd": 0.026246216651964364,
+          "per_fold": [
+            0.9290026703819807,
+            0.8830305216668853,
+            0.9032173195880379,
+            0.9159567763016039,
+            0.9525907899319878
+          ],
+          "folds": 5,
+          "ddof": 1
+        },
+        "f1": {
+          "mean": 0.8307067332132245,
+          "sample_sd": 0.04271083848527129,
+          "per_fold": [
+            0.869647692169112,
+            0.8311584840654609,
+            0.7692856811755435,
+            0.8120132372274355,
+            0.8714285714285714
+          ],
+          "folds": 5,
+          "ddof": 1
+        }
+      }
+    },
+    "URFM-L A": {
+      "internal_image_fivefold_mean_sample_sd": {
+        "busi": {
+          "auc": {
+            "mean": 0.970609274669018,
+            "sample_sd": 0.011720932999965126
+          },
+          "f1": {
+            "mean": 0.8708020567116954,
+            "sample_sd": 0.044061010370137724
+          }
+        },
+        "udiat": {
+          "auc": {
+            "mean": 0.9036117152385096,
+            "sample_sd": 0.08405064344134291
+          },
+          "f1": {
+            "mean": 0.7974966828836798,
+            "sample_sd": 0.12232243966517312
+          }
+        },
+        "arc": {
+          "auc": {
+            "mean": 0.9097654234107434,
+            "sample_sd": 0.043705050841870687
+          },
+          "f1": {
+            "mean": 0.8399367400378521,
+            "sample_sd": 0.08964312776153227
+          }
+        }
+      },
+      "target_image_fivefold_mean_then_patient_max": {
+        "breast": {
+          "auc": 0.9025311423270607,
+          "f1": 0.7582938388625592,
+          "sensitivity": 0.8163265306122449,
+          "specificity": 0.7857142857142857
+        },
+        "busbra": {
+          "auc": 0.9293466815700377,
+          "f1": 0.731651376146789,
+          "sensitivity": 0.9327485380116959,
+          "specificity": 0.7077562326869806
+        },
+        "clinical": {
+          "fn": 15,
+          "sensitivity": 0.875
+        }
+      },
+      "internal_macro": {
+        "auc": {
+          "mean": 0.9279954711060905,
+          "sample_sd": 0.023801625840986183,
+          "per_fold": [
+            0.9121933621933622,
+            0.9107520005247278,
+            0.9116831539789496,
+            0.9635103083378945,
+            0.9418385304955178
+          ],
+          "folds": 5,
+          "ddof": 1
+        },
+        "f1": {
+          "mean": 0.8360784932110759,
+          "sample_sd": 0.034698182943684236,
+          "per_fold": [
+            0.8752237182102544,
+            0.8067549701913244,
+            0.7965395644423777,
+            0.8654069767441861,
+            0.8364672364672364
+          ],
+          "folds": 5,
+          "ddof": 1
+        }
+      }
+    },
+    "URFM-L C": {
+      "internal_image_fivefold_mean_sample_sd": {
+        "busi": {
+          "auc": {
+            "mean": 0.9686026810665945,
+            "sample_sd": 0.019188567410153474
+          },
+          "f1": {
+            "mean": 0.8820292993248005,
+            "sample_sd": 0.0438515688898767
+          }
+        },
+        "udiat": {
+          "auc": {
+            "mean": 0.900879126190131,
+            "sample_sd": 0.09869490590342031
+          },
+          "f1": {
+            "mean": 0.8345112781954886,
+            "sample_sd": 0.08118103604483459
+          }
+        },
+        "arc": {
+          "auc": {
+            "mean": 0.9078090546563453,
+            "sample_sd": 0.0577244636670653
+          },
+          "f1": {
+            "mean": 0.8351791203965118,
+            "sample_sd": 0.08167217538904713
+          }
+        }
+      },
+      "target_image_fivefold_mean_then_patient_max": {
+        "breast": {
+          "auc": 0.9004108136761197,
+          "f1": 0.7870370370370371,
+          "sensitivity": 0.8673469387755102,
+          "specificity": 0.7857142857142857
+        },
+        "busbra": {
+          "auc": 0.9313513469731577,
+          "f1": 0.7139689578713969,
+          "sensitivity": 0.9415204678362573,
+          "specificity": 0.6703601108033241
+        },
+        "clinical": {
+          "fn": 15,
+          "sensitivity": 0.875
+        }
+      },
+      "internal_macro": {
+        "auc": {
+          "mean": 0.9257636206376902,
+          "sample_sd": 0.019263995298439918,
+          "per_fold": [
+            0.9326872999286793,
+            0.9107520005247278,
+            0.904517602363862,
+            0.9532658274037584,
+            0.9275953729674238
+          ],
+          "folds": 5,
+          "ddof": 1
+        },
+        "f1": {
+          "mean": 0.8505732326389337,
+          "sample_sd": 0.031613432399952124,
+          "per_fold": [
+            0.8561438561438561,
+            0.8067549701913244,
+            0.8425852124204013,
+            0.8523148148148149,
+            0.8950673096242716
+          ],
+          "folds": 5,
+          "ddof": 1
+        }
+      }
+    },
+    "DINOv2-B IADA": {
+      "internal_image_fivefold_mean_sample_sd": {
+        "busi": {
+          "auc": {
+            "mean": 0.9436563943941649,
+            "sample_sd": 0.005732487678009172
+          },
+          "f1": {
+            "mean": 0.8238733071890116,
+            "sample_sd": 0.009824192071384094
+          }
+        },
+        "udiat": {
+          "auc": {
+            "mean": 0.8992532985355952,
+            "sample_sd": 0.07618043925743392
+          },
+          "f1": {
+            "mean": 0.746462063086104,
+            "sample_sd": 0.09417415554062032
+          }
+        },
+        "arc": {
+          "auc": {
+            "mean": 0.8790554382672611,
+            "sample_sd": 0.07895596745287067
+          },
+          "f1": {
+            "mean": 0.7841265025090441,
+            "sample_sd": 0.1201515971881918
+          }
+        }
+      },
+      "target_image_fivefold_mean_then_patient_max": {
+        "breast": {
+          "auc": 0.8792075271667109,
+          "f1": 0.7532467532467533,
+          "sensitivity": 0.8877551020408163,
+          "specificity": 0.7012987012987013
+        },
+        "busbra": {
+          "auc": 0.9013907113119826,
+          "f1": 0.656441717791411,
+          "sensitivity": 0.9385964912280702,
+          "specificity": 0.5637119113573407
+        },
+        "clinical": {
+          "fn": 14,
+          "sensitivity": 0.8833333333333333
+        }
+      },
+      "internal_macro": {
+        "auc": {
+          "mean": 0.9073217103990071,
+          "sample_sd": 0.0458447432278351,
+          "per_fold": [
+            0.9443407805476771,
+            0.8446390310026674,
+            0.8798775688740176,
+            0.9556015446297579,
+            0.9121496269409155
+          ],
+          "folds": 5,
+          "ddof": 1
+        },
+        "f1": {
+          "mean": 0.7848206242613865,
+          "sample_sd": 0.06001842782041613,
+          "per_fold": [
+            0.8324307858931835,
+            0.6910667473280903,
+            0.762962962962963,
+            0.8020511185504011,
+            0.8355915065722952
+          ],
+          "folds": 5,
+          "ddof": 1
+        }
+      }
+    },
+    "DINOv2-B GAP": {
+      "internal_image_fivefold_mean_sample_sd": {
+        "busi": {
+          "auc": {
+            "mean": 0.9576561699015589,
+            "sample_sd": 0.016655568418611003
+          },
+          "f1": {
+            "mean": 0.8480764215043288,
+            "sample_sd": 0.03867747311492329
+          }
+        },
+        "udiat": {
+          "auc": {
+            "mean": 0.9079377507128704,
+            "sample_sd": 0.05511842096252405
+          },
+          "f1": {
+            "mean": 0.7413725490196079,
+            "sample_sd": 0.07318350007217682
+          }
+        },
+        "arc": {
+          "auc": {
+            "mean": 0.8725693955743218,
+            "sample_sd": 0.09223972619763117
+          },
+          "f1": {
+            "mean": 0.7683975774690948,
+            "sample_sd": 0.06280487648053676
+          }
+        }
+      },
+      "target_image_fivefold_mean_then_patient_max": {
+        "breast": {
+          "auc": 0.9023986217863769,
+          "f1": 0.7567567567567568,
+          "sensitivity": 0.8571428571428571,
+          "specificity": 0.7402597402597403
+        },
+        "busbra": {
+          "auc": 0.8817652395068928,
+          "f1": 0.657563025210084,
+          "sensitivity": 0.9152046783625731,
+          "specificity": 0.5886426592797784
+        },
+        "clinical": {
+          "fn": 14,
+          "sensitivity": 0.8833333333333333
+        }
+      },
+      "internal_macro": {
+        "auc": {
+          "mean": 0.9127211053962503,
+          "sample_sd": 0.04765418586826623,
+          "per_fold": [
+            0.933976878804465,
+            0.8302746075473348,
+            0.9217414862391378,
+            0.9528100832176066,
+            0.9248024711727071
+          ],
+          "folds": 5,
+          "ddof": 1
+        },
+        "f1": {
+          "mean": 0.7859488493310106,
+          "sample_sd": 0.04800700861651182,
+          "per_fold": [
+            0.8114910622883692,
+            0.7096774193548386,
+            0.7721150145692451,
+            0.8336152219873151,
+            0.8028455284552846
+          ],
+          "folds": 5,
+          "ddof": 1
+        }
+      }
+    }
+  }
+}

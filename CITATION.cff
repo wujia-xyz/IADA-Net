@@ -1,13 +1,35 @@
 cff-version: 1.2.0
 message: "Please cite the accompanying manuscript when using this software."
-title: "Image-Adaptive Depth Aggregation for Whole-Image Breast Ultrasound Classification"
+title: "IADA-Net: URFM-L with Image-Adaptive Depth Aggregation"
 type: software
 authors:
   - family-names: Wu
     given-names: Jia
   - family-names: Shan
     given-names: Dongjing
-version: 1.0.0
-date-released: 2026-09-13
+version: 1.1.0
+date-released: 2026-10-03
 license: MIT
 repository-code: "https://github.com/wujia-xyz/IADA-Net"
+preferred-citation:
+  type: unpublished
+  title: "Image-Adaptive Depth Aggregation with Context-Conditioned Row Pooling for Whole-Image Breast Ultrasound Classification"
+  authors:
+    - family-names: Wu
+      given-names: Jia
+    - family-names: Huang
+      given-names: Jing
+    - family-names: Zhong
+      given-names: Lisha
+    - family-names: Mao
+      given-names: Jiashun
+    - family-names: Li
+      given-names: Zhangyong
+    - family-names: Meng
+      given-names: Hongying
+    - family-names: Wang
+      given-names: Shijie
+    - family-names: Qu
+      given-names: Biao
+    - family-names: Li
+      given-names: Pinxiong

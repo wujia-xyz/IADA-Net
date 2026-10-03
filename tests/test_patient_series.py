@@ -101,7 +101,7 @@ def test_cli_emits_only_requested_outputs_and_never_overwrites_sources(tmp_path,
     args=['--manifest',str(source),'--fold-predictions',*paths,'--cohort-kind','malignant-only','--output',str(output),'--patient-output',str(patients)]
     main(args)
     report=json.loads(output.read_text());assert report['metrics']['tp']==2 and report['folds']==5
-    assert len(report['input_sha256']['fold_predictions'])==5
+    assert 'input_sha256' not in report
     assert patients.exists() and 'patient_id' not in capsys.readouterr().out
     original=source.read_bytes()
     with pytest.raises(SystemExit):main(['--manifest',str(source),'--fold-predictions',*paths,'--cohort-kind','malignant-only','--output',str(source)])

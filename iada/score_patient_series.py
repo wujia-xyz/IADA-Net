@@ -1,5 +1,5 @@
 """Score saved fold probabilities using the current patient-series protocol."""
-import argparse,csv,hashlib,json
+import argparse,csv,json
 from pathlib import Path
 from .patient_series import validate_manifest,align_fold_predictions,score_series
 
@@ -7,14 +7,6 @@ from .patient_series import validate_manifest,align_fold_predictions,score_serie
 def _read(path):
     with Path(path).open(encoding='utf-8-sig',newline='') as stream:
         return list(csv.DictReader(stream))
-
-
-def _digest(path):
-    digest=hashlib.sha256()
-    with Path(path).open('rb') as stream:
-        for block in iter(lambda:stream.read(1024*1024),b''):
-            digest.update(block)
-    return digest.hexdigest()
 
 
 def main(argv=None):
@@ -43,8 +35,6 @@ def main(argv=None):
     reference=None if not args.reference_fold_predictions else [align_fold_predictions(records,_read(p)) for p in args.reference_fold_predictions]
     report,patients=score_series(records,predictions,cohort_kind=args.cohort_kind,expected_folds=args.expected_folds,
         bootstrap_repetitions=args.bootstrap,seed=args.seed,reference_fold_probabilities=reference)
-    report['input_sha256']={'manifest':_digest(args.manifest),'fold_predictions':[_digest(p) for p in args.fold_predictions]}
-    if args.reference_fold_predictions:report['input_sha256']['reference_fold_predictions']=[_digest(p) for p in args.reference_fold_predictions]
     output=Path(args.output);output.parent.mkdir(parents=True,exist_ok=True)
     output.write_text(json.dumps(report,indent=2,allow_nan=False),encoding='utf-8')
     if args.patient_output:

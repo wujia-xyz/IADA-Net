@@ -44,7 +44,7 @@ For a paired comparison, supply the comparator's five files through `--reference
 python -m iada.score_patient_series --manifest public_patients.csv --fold-predictions query1.csv query2.csv query3.csv query4.csv query5.csv --reference-fold-predictions base1.csv base2.csv base3.csv base4.csv base5.csv --cohort-kind binary --output outputs/paired_metrics.json
 ```
 
-The JSON records the aggregation order, positive tie convention, model count, uncertainty settings and input-file SHA256 hashes. It contains no trained-model claims. Checkpoint choice and preprocessing remain the responsibility of the prediction-producing experiment.
+The JSON records the aggregation order, positive tie convention, model count and uncertainty settings. The scorer does not calculate file hashes or create audit receipts. Checkpoint choice and preprocessing belong to the prediction-producing experiment.
 
 ## Historical results
 
