@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import torch
 from .model import IADANet
+from .reader_grades import diagnosis_state
 
 
 def load_payload(path):
@@ -23,6 +24,8 @@ def state_dict(payload):
 def load_model(checkpoint, device='cpu', adapter=None):
     payload = load_payload(checkpoint)
     state = state_dict(payload)
+    if any(key.startswith('reader_ordinal.') for key in state):
+        state = diagnosis_state(state)
     if any(key.startswith('encoder.net.') for key in state):
         if adapter is not None:
             raise ValueError('URFM full checkpoints do not use legacy DINO query adapters')
@@ -41,8 +44,11 @@ def load_model(checkpoint, device='cpu', adapter=None):
         if a.get('format') != 'DABI_QUERY_ADAPTER_ONLY' or a.get('format_version') != 1:
             raise ValueError('Unsupported compact adapter format')
         expected = a.get('original_checkpoint', {}).get('sha256')
+        digest = hashlib.sha256()
         with Path(checkpoint).open('rb') as stream:
-            actual = hashlib.file_digest(stream, 'sha256').hexdigest()
+            for chunk in iter(lambda: stream.read(1 << 20), b''):
+                digest.update(chunk)
+        actual = digest.hexdigest()
         if expected != actual:
             raise ValueError('Adapter is bound to a different base checkpoint')
         addition = a['adapter_state_dict']
