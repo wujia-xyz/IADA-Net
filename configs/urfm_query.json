@@ -1,0 +1,9 @@
+{
+  "stage": "query",
+  "epochs": 40,
+  "encoder": "urfm_l16_ema",
+  "head": "iada",
+  "seed": 42,
+  "batch_size": 16,
+  "optimizer": "audited"
+}

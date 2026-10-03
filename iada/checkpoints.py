@@ -23,6 +23,14 @@ def state_dict(payload):
 def load_model(checkpoint, device='cpu', adapter=None):
     payload = load_payload(checkpoint)
     state = state_dict(payload)
+    if any(key.startswith('encoder.net.') for key in state):
+        if adapter is not None:
+            raise ValueError('URFM full checkpoints do not use legacy DINO query adapters')
+        from .urfm import URFMIADA
+        variant = 'query' if 'row_pooling.context_proj.weight' in state else 'fixed'
+        model = URFMIADA(variant=variant)
+        model.load_state_dict(state, strict=True)
+        return model.to(device).float().eval(), payload
     has_query = 'row_pooling.context_proj.weight' in state
     has_readout = 'depth_pool_score.weight' in state
     variant = 'both' if has_query and has_readout else 'query' if has_query else 'readout' if has_readout else 'fixed'
